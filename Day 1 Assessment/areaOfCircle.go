@@ -7,11 +7,11 @@ import (
 
 func calcAreaOfCircle(radius float64) float64 {
 
-	const Pi = math.Pi
+	const pi = math.Pi
 
 	var area float64
 
-	area = Pi * math.Pow(radius, 2)
+	area = pi * math.Pow(radius, 2)
 
 	ratio := math.Pow(10, 2)
 	return math.Round(float64(area)*ratio) / ratio

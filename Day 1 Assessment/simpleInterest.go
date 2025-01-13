@@ -24,5 +24,5 @@ func main() {
 
 	simpleInterest := calcSimpInterest(principle, rate, time)
 
-	fmt.Println("Simple Interst is: ", float64(simpleInterest))
+	fmt.Println("Simple Interst is: ", simpleInterest)
 }
