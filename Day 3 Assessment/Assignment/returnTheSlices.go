@@ -10,7 +10,19 @@ func main() {
 
 	fmt.Scanf("%v %v", &index1, &index2)
 
-	if index1 >= 0 && index1 < len(array) && index2 >= index1 && index2 < len(array) {
+	// If any of the Indexes is out of bounds
+
+	if index1 < 0 || index1 >= len(array) || index2 < 0 || index2 >= len(array) {
+
+		fmt.Println("Index out of Bounds")
+
+	} else if index1 > index2 {
+
+		// If first index is greater than second index
+
+		fmt.Println("Incorrect Indexes!")
+
+	} else {
 
 		slice1 := array[:index1+1]
 
@@ -21,9 +33,5 @@ func main() {
 		fmt.Println("Slice 1 is: ", slice1)
 		fmt.Println("Slice 2 is: ", slice2)
 		fmt.Println("Slice 3 is: ", slice3)
-
-	} else {
-		fmt.Println("Incorrect Indexes")
 	}
-
 }

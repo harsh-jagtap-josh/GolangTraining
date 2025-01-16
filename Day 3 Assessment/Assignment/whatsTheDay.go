@@ -26,10 +26,4 @@ func main() {
 	} else {
 		fmt.Println("Not a day!")
 	}
-	// if day > 8 && day > 0 {
-	// 	fmt.Println("Not a day")
-
-	// } else {
-	// 	fmt.Println("The day stored at index ", day, " is ", days[day])
-	// }
 }
