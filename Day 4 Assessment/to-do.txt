@@ -1,0 +1,4 @@
+Difference between a function that takes a pointer argument and a pointer receiver method?
+Difference between Kind and Type in go?
+Practice and test Methods, Interfaces and Pointers
+Maps documentation and working in docs
