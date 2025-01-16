@@ -2,9 +2,9 @@ package main
 
 import "fmt"
 
-func main(){
+func main() {
 
-	var days = map[int]string {
+	var days = map[int]string{
 		1: "Monday",
 		2: "Tuesday",
 		3: "Wednesday",
@@ -19,12 +19,17 @@ func main(){
 	fmt.Print("Enter the Number: ")
 	fmt.Scan(&day)
 
-	if day > 8 {
-		fmt.Println("Not a day")
+	value, exists := days[day]
 
+	if exists {
+		fmt.Println("The day stored at index ", day, " is ", value)
 	} else {
-		fmt.Println("The day stored at index ", day, " is ", days[day])
-	
+		fmt.Println("Not a day!")
 	}
-	// fmt.Println("Hello World")
+	// if day > 8 && day > 0 {
+	// 	fmt.Println("Not a day")
+
+	// } else {
+	// 	fmt.Println("The day stored at index ", day, " is ", days[day])
+	// }
 }
