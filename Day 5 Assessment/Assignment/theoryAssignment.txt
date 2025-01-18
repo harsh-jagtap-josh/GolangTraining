@@ -1,4 +1,14 @@
+
+
 Q1) What are the possible reasons that could cause a program to panic?
+
+    1. Nil Pointer Dereference
+    2. Index Out of Range
+    3. Failed Type Assertions
+    4. Closing Closed Channels
+    5. Division by Zero
+    6. Running out of memory - resulting from uncontrolled resource allocation, like an infinite loop creating large objects.
+    7. Invalid Memory Address
 
 
 
