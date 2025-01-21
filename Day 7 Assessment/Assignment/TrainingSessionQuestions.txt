@@ -1,0 +1,25 @@
+Study Assignment for Go Modules
+
+use cases of blank imports in golang
+What is repository name and module name doesn’t match, what are the consequences and why go-jwt had module name v5 and git tree was go-jwt/tree/v5
+Find what go.sum does and its use
+Go workspace examples and use case
+
+
+
+
+Important Reading items for Go Modules :
+
+Why is GO111MODULE everywhere, and everything about Go Modules (updated with Go 1.20) (Must Read)
+https://maelvls.dev/go111module-everywhere/
+
+Gorilla mux archieved
+https://www.reddit.com/r/golang/comments/zh0w0p/gorilla_web_toolkit_is_now_in_archive_only_mode/
+
+
+Go toolchain (Must read)
+https://go.dev/doc/toolchain
+
+
+(good to know)
+https://proxy.golang.org/
