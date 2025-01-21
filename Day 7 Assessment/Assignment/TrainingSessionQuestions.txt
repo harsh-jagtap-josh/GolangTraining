@@ -1,12 +1,47 @@
 Study Assignment for Go Modules
 
-use cases of blank imports in golang
-What is repository name and module name doesn’t match, what are the consequences and why go-jwt had module name v5 and git tree was go-jwt/tree/v5
-Find what go.sum does and its use
-Go workspace examples and use case
+
+Q1. Use cases of blank imports in golang ?
+    When we intend to import that package so that init function in the GO source files belonging to that package can be called and initiazation of variables in that package can be done properly
+    So basically a blank import is used when a package is solely imported for its side effects.
+
+    As an example mysql package is used as blank import for its side-effect of registering the mysql driver as a database driver in the init() function of mysql package, without importing any other functions:
+
+    --> _ "github.com/go-sql-driver/mysql"
+
+    For using any of the mysql library such as gorm or xorm above blank import is necessary
+
+    Ref - https://golangbyexample.com/blank-identifier-import-golang/
 
 
 
+Q2. What if repository name and module name doesn’t match, what are the consequences and why go-jwt had module name v5 and git tree was go-jwt/tree/v5
+
+
+
+Q3. Find what go.sum does and its use
+
+    It maintains the checksum so when you run the project again it will not install all packages again. But use the cache which is stored inside $GOPATH/pkg/mod directory (module cache directory).
+    go.sum is a generated file you don’t have to edit or modify this file.
+
+    Ref - https://faun.pub/understanding-go-mod-and-go-sum-5fd7ec9bcc34
+
+
+
+Q4. Go workspace examples and use case
+
+    Previously, to add a feature to one module and use it in another module, you needed to either publish the changes to the first module, or edit the go.mod file of the dependent module with a replace directive for your local, unpublished module changes. In order to publish without errors, you had to remove the replace directive from the dependent module’s go.mod file after you published the local changes to the first module.
+
+    With Go workspaces, you control all your dependencies using a go.work file in the root of your workspace directory. The go.work file has use and replace directives that override the individual go.mod files, so there is no need to edit each go.mod file individually.
+
+    You create a workspace by running go work init with a list of module directories as space-separated arguments. The workspace doesn’t need to contain the modules you’re working with. The init command creates a go.work file that lists modules in the workspace. If you run go work init without arguments, the command creates an empty workspace.
+
+    To add modules to the workspace, run go work use [moddir] or manually edit the go.work file. Run go work use -r . to recursively add directories in the argument directory with a go.mod file to your workspace. If a directory doesn’t have a go.mod file, or no longer exists, the use directive for that directory is removed from your go.work file.
+    Ref - https://go.dev/blog/get-familiar-with-workspaces
+
+
+
+==============================================================================================================================================================
 
 Important Reading items for Go Modules :
 
@@ -18,7 +53,8 @@ https://www.reddit.com/r/golang/comments/zh0w0p/gorilla_web_toolkit_is_now_in_ar
 
 
 Go toolchain (Must read)
-https://go.dev/doc/toolchain
+https://go.dev/doc/toolchain 
+-- difficult to understand
 
 
 (good to know)
