@@ -15,7 +15,9 @@ func main() {
 	alice := true
 
 	count := 0
+
 	for i := 0; i < len(conversation); i++ {
+
 		if conversation[i:i+1] == "$" {
 			if count > 0 {
 				finalStr = finalStr + ","
@@ -29,6 +31,7 @@ func main() {
 			finalStr = finalStr + temp
 			temp = ""
 			alice = !alice
+
 		} else if conversation[i:i+1] == "#" {
 			if !alice {
 				finalStr = finalStr + ",bob : "
@@ -37,8 +40,10 @@ func main() {
 			}
 			finalStr = finalStr + temp
 			temp = ""
+
 		} else if conversation[i:i+1] == "^" {
 			break
+
 		} else {
 			temp = temp + conversation[i:i+1]
 		}

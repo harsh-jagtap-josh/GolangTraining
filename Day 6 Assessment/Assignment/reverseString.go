@@ -11,6 +11,7 @@ func reverseString(str string) string {
 	for i := len(str) - 1; i >= 0; i-- {
 		newStr = newStr + str[i:i+1]
 	}
+
 	return newStr
 }
 
