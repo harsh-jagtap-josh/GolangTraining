@@ -1,5 +1,3 @@
-// have a doubt in How to use Channels in this question, so used a simple normal approach to solve this problem..
-
 package main
 
 import "fmt"
