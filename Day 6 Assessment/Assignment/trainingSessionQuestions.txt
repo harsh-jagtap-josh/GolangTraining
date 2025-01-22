@@ -31,4 +31,4 @@ Q1. Find use cases for buffered and unbuffered channels?
 
 
 Q2. Understand and prepare a document on how Go schedular manages goroutines
-
+--> Same as question 2 above ^
