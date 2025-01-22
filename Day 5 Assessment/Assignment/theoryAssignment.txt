@@ -1,0 +1,33 @@
+
+
+Q1) What are the possible reasons that could cause a program to panic?
+
+    1. Nil Pointer Dereference
+    2. Index Out of Range
+    3. Failed Type Assertions
+    4. Closing Closed Channels
+    5. Division by Zero
+    6. Running out of memory - resulting from uncontrolled resource allocation, like an infinite loop creating large objects.
+    7. Invalid Memory Address
+
+
+
+Q2) What is the difference between context.TODO() and context.Background() ?
+
+    --> Background returns an empty (not nil/non-nil) Context. It doesn't have any value or deadline. It is basically used as the top level (as in inside other context function), like to initialize a context and further add values or deadline to it. 
+
+    --> TODO also return an empty context. It is usually used when it is unclear which context is to be used.
+
+
+
+Q3) What is the difference between errors.Is() and errors.As() ?
+
+    --> errors.As basically takes in two arguments one is the error and other is the target. It looks through the whole error tree in a depth-first traversal/pre-order(created by doing error.Unwrap() or error.Unwrap() []error constantly), and if it finds the error in the tree, it sets the target to that error value and return true... If not found then it return false.
+    --> errors.Is takes in same two arguments and checks if the errors and target passed are of the same type.
+
+    Unwrapping basically means that the error wraps another error like: 
+
+    var someError = fmt.Errorf("This is an error")
+    var newError = fmt.Errorf("error found %w: ", someError)
+
+    here newError wraps someError and hence if we perform errors.Is(newError, someError), we will get true...
