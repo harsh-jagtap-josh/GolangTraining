@@ -1,4 +1,10 @@
-Difference between a function that takes a pointer argument and a pointer receiver method?
-Difference between Kind and Type in go?
-Practice and test Methods, Interfaces and Pointers
-Maps documentation and working in docs
+Q1. Difference between a function that takes a pointer and a pointer receiver as an argument?
+
+-- Pointer Receiver doesn’t need the use of ‘&’ or mentioning the address of the variable (it works either way) whereas it is necessary in a function that takes a pointer. It allows us to modify the argument passed in the function.
+-- In a pointer receiver the name is mentioned after the receiver and in function it is the other way around. Allows us to modify the received type passed in the function. Focused more on the defining the behavior of structs.
+
+
+Q2. Difference between Kind and Type in go?
+-- The Kind is similar to a Type, representing the underlying kind of the value or type.
+-- Type is the concrete type of any variable or object
+-- Main difference being for most of the primitive types they both return the same output, but for structs Type will return main.TypeName and Kind will return ‘struct’ as output.
