@@ -19,9 +19,17 @@ func main() {
 
 	var length, breadth int
 	fmt.Print("Enter the Length: ")
-	fmt.Scanln(&length)
+	_, err := fmt.Scanln(&length)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
 	fmt.Print("Enter the Breadth: ")
-	fmt.Scanln(&breadth)
+	_, err2 := fmt.Scanln(&breadth)
+
+	if err2 != nil {
+		fmt.Println("Error: ", err2)
+	}
 
 	newRectangle := rectangle{
 		length:  length,

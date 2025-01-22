@@ -3,8 +3,8 @@ package main
 import "fmt"
 
 type quadrilateral interface {
-	areaOfShape() int
-	perimeterOfShape() int
+	Area() int
+	Perimeter() int
 }
 
 type rectangleShape struct {
@@ -16,47 +16,52 @@ type squareShape struct {
 	side int
 }
 
-func (rect rectangleShape) areaOfShape() int {
+func (rect rectangleShape) Area() int {
 	return rect.length * rect.breadth
 }
 
-func (rect rectangleShape) perimeterOfShape() int {
+func (rect rectangleShape) Perimeter() int {
 	return 2 * (rect.length + rect.breadth)
 }
 
-func (square1 squareShape) areaOfShape() int {
+func (square1 squareShape) Area() int {
 	return square1.side * square1.side
 }
 
-func (square1 squareShape) perimeterOfShape() int {
+func (square1 squareShape) Perimeter() int {
 	return 4 * square1.side
 }
 
 func print(newQuadrilateral quadrilateral) {
-	fmt.Println("Area: ", newQuadrilateral.areaOfShape())
-	fmt.Println("Perimeter: ", newQuadrilateral.perimeterOfShape())
+	fmt.Println("Area: ", newQuadrilateral.Area())
+	fmt.Println("Perimeter: ", newQuadrilateral.Perimeter())
 }
 
 func main() {
 
 	var userInput int
 	fmt.Print("Enter a Number: ")
-	fmt.Scanln(&userInput)
+	_, err := fmt.Scanln(&userInput)
 
-	newRectangle := rectangleShape{
-		length:  10,
-		breadth: 10,
-	}
-
-	newSquare := squareShape{
-		side: 10,
-	}
-
-	if userInput == 1 {
-		print(newRectangle)
-	} else if userInput == 2 {
-		print(newSquare)
+	if err != nil {
+		fmt.Println("Error: ", err)
 	} else {
-		fmt.Println("Invalid Input!")
+
+		newRectangle := rectangleShape{
+			length:  50,
+			breadth: 10,
+		}
+
+		newSquare := squareShape{
+			side: 10,
+		}
+
+		if userInput == 1 {
+			print(newRectangle)
+		} else if userInput == 2 {
+			print(newSquare)
+		} else {
+			fmt.Println("Invalid Input!")
+		}
 	}
 }
