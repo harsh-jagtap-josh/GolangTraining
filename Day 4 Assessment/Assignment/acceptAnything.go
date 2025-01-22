@@ -28,7 +28,11 @@ func main() {
 	3: For Boolean,
 	4: For any other Type`)
 	fmt.Print("Enter a Number: ")
-	fmt.Scanln(&userInput)
+	_, err := fmt.Scanln(&userInput)
+
+	if err != nil {
+		fmt.Errorf("Error found: ", err)
+	}
 
 	var a = []int{10, 20, 30}
 

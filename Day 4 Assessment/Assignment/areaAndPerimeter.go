@@ -8,11 +8,13 @@ type rectangle struct {
 }
 
 func (rect rectangle) area() int {
-	return rect.length * rect.breadth
+	area := rect.length * rect.breadth
+	return area
 }
 
 func (rect rectangle) perimeter() int {
-	return 2 * (rect.length + rect.breadth)
+	perimeter := 2 * (rect.length + rect.breadth)
+	return perimeter
 }
 
 func main() {
@@ -21,14 +23,14 @@ func main() {
 	fmt.Print("Enter the Length: ")
 	_, err := fmt.Scanln(&length)
 	if err != nil {
-		fmt.Println("Error: ", err)
+		fmt.Errorf("Error: ", err)
 	}
 
 	fmt.Print("Enter the Breadth: ")
 	_, err2 := fmt.Scanln(&breadth)
 
 	if err2 != nil {
-		fmt.Println("Error: ", err2)
+		fmt.Errorf("Error: ", err2)
 	}
 
 	newRectangle := rectangle{
