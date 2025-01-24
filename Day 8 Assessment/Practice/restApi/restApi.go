@@ -44,8 +44,6 @@
 // "www.google.com" : "UP",
 // "www.fakewebsite1.com”: “DOWN”, }
 
-//===========================================================================================================================================================================================================================================================================================================================================================================
-
 package main
 
 import (
@@ -65,12 +63,7 @@ type requestData struct {
 }
 
 type StatusChecker interface {
-	ServeHTTP(w http.ResponseWriter, r *http.Request)
 	Check(ctx context.Context, name string) (status bool, err error)
-	getHandlerFunction(websiteName string, w http.ResponseWriter)
-	checkStatus(ctx context.Context, site string)
-	checkStatusAll(ctx context.Context, siteNames []string)
-	checkStatusForOne(ctx context.Context, name string) (status bool, err error)
 }
 
 type httpChecker struct {
@@ -82,65 +75,64 @@ type httpChecker struct {
 
 func (h *httpChecker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	// we find what kind of request it is here... so basically if it is a get request then we StatusCheck for the website passed in param
+	// else if its a post request that means that a list of sites are passed, hence we check for all of them using a different function maybe.. for Granularity or Modularity
+
 	method := r.Method
 
 	if method == "GET" {
-
 		websiteName := r.URL.Query().Get("name")
-		h.getHandlerFunction(websiteName, w)
+
+		isUp, err := h.CheckStatusOne(h.ctx, websiteName)
+
+		if err != nil || !isUp {
+			w.Write([]byte("DOWN"))
+			return
+		}
+		w.Write([]byte("UP"))
 
 	} else {
 
 		body, err := io.ReadAll(r.Body)
+
 		if err != nil {
 			http.Error(w, "Problem reading request body: "+err.Error(), http.StatusInternalServerError)
 		}
 
 		var resp requestData
+
 		newErr := json.Unmarshal(body, &resp)
 
 		if newErr != nil {
 			http.Error(w, "Found Error: "+newErr.Error(), http.StatusInternalServerError)
 		}
 
+		// -------------------------------------------------------------------------------------------------------------
+
+		// This code is to return response to the http POST request
+
+		// h.checkStatusAll(h.ctx, resp.Websites)
+
+		// response, marshalErr := json.Marshal(h.sitesStatus)
+		// if marshalErr != nil {
+		// 	http.Error(w, "Error: "+marshalErr.Error(), http.StatusInternalServerError)
+		// }
+
+		// w.Write(response)
+
+		// -------------------------------------------------------------------------------------------------------------
+
 		for {
-			h.checkStatusAll(h.ctx, resp.Websites) // checks status infinitely after every 10 seconds, can change time to 1 minute (specified in problm statement)
+			h.checkStatusAll(h.ctx, resp.Websites) // prints the status of websites in terminal constantly after every 10 seconds, can change time to 1 minute...
 			fmt.Println(h.sitesStatus)
 			time.Sleep(time.Second * 10)
 		}
 	}
 }
 
-func (h *httpChecker) getHandlerFunction(websiteName string, w http.ResponseWriter) {
-
-	if len(websiteName) == 0 {
-		sitesString := []string{
-			"https://www.facebook.com",
-			"https://www.google.com",
-			"https://www.fakewebsite1.com"}
-
-		h.checkStatusAll(h.ctx, sitesString)
-		response, marshalErr := json.Marshal(h.sitesStatus)
-		if marshalErr != nil {
-			http.Error(w, "Error: "+marshalErr.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Write(response)
-		return
-	}
-
-	isUp, err := h.checkStatusForOne(h.ctx, websiteName)
-
-	if err != nil || !isUp {
-		w.Write([]byte("DOWN"))
-		return
-	}
-	w.Write([]byte("UP"))
-}
-
 func (h *httpChecker) checkStatus(ctx context.Context, site string) {
 	defer h.wg.Done()
-	status, err := h.checkStatusForOne(ctx, site)
+	status, err := h.CheckStatusOne(ctx, site)
 	h.m.Lock()
 	if err != nil {
 		h.sitesStatus[site] = false
@@ -160,16 +152,14 @@ func (h *httpChecker) checkStatusAll(ctx context.Context, siteNames []string) {
 	h.wg.Wait()
 }
 
-func (h *httpChecker) checkStatusForOne(ctx context.Context, name string) (status bool, err error) {
+func (h *httpChecker) CheckStatusOne(ctx context.Context, name string) (status bool, err error) {
 	resp, err := http.Get(name)
 	if err != nil {
 		return false, errors.New(err.Error())
 	}
-
 	if resp.StatusCode == 200 {
 		return true, nil
 	}
-
 	return false, errors.New("status code doesn't match")
 }
 
@@ -189,9 +179,53 @@ func main() {
 		wg,
 	}
 
+	// mux.HandleFunc("GET /helloServer", handleGetRequest) // just for testing
+	// mux.HandleFunc("POST /websites", websiteStatusHandler)
+
 	mux.Handle("GET /websites", &httpObj)
 	mux.Handle("POST /websites", &httpObj)
 
 	fmt.Println("Listen to Port :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
+
+// func handleGetRequest(w http.ResponseWriter, r *http.Request) {
+// 	_, err := w.Write([]byte("Hello"))
+
+// 	if err != nil {
+// 		http.Error(w, "Error in write: "+err.Error(), http.StatusInternalServerError)
+// 	}
+// }
+
+// func websiteStatusHandler(w http.ResponseWriter, r *http.Request) {
+
+// 	body, err := io.ReadAll(r.Body)
+
+// 	if err != nil {
+// 		http.Error(w, "Problem reading request body: "+err.Error(), http.StatusInternalServerError)
+// 	}
+
+// 	var data requestData
+
+// 	errr := json.Unmarshal(body, &data)
+
+// 	if errr != nil {
+// 		http.Error(w, "Error found: "+errr.Error(), http.StatusInternalServerError)
+// 	}
+
+// 	websiteName := r.URL.Query().Get("name")
+
+// 	// if no params passed check for all sites
+
+// 	if len(websiteName) == 0 {
+// 		fmt.Println("empty")
+// 	}
+
+// 	parsed, err_ := json.Marshal(data.Websites)
+
+// 	if err_ != nil {
+// 		http.Error(w, "Error in parsing output: "+err_.Error(), http.StatusInternalServerError)
+// 	}
+
+// 	w.Write(parsed)
+// }

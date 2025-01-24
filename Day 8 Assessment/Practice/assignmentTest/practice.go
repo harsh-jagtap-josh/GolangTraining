@@ -75,7 +75,7 @@ type StatusChecker interface {
 
 type httpChecker struct {
 	ctx         context.Context
-	sitesStatus map[string]bool
+	sitesStatus map[string]string
 	m           sync.Mutex
 	wg          sync.WaitGroup
 }
@@ -143,10 +143,10 @@ func (h *httpChecker) checkStatus(ctx context.Context, site string) {
 	status, err := h.checkStatusForOne(ctx, site)
 	h.m.Lock()
 	if err != nil {
-		h.sitesStatus[site] = false
+		h.sitesStatus[site] = "DOWN"
 	}
 	if status {
-		h.sitesStatus[site] = true
+		h.sitesStatus[site] = "UP"
 	}
 	h.m.Unlock()
 }
@@ -180,7 +180,7 @@ func main() {
 	var m sync.Mutex
 	var wg sync.WaitGroup
 
-	sitesStatus := make(map[string]bool)
+	sitesStatus := make(map[string]string)
 
 	httpObj := httpChecker{
 		ctx,
