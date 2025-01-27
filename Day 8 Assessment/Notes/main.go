@@ -65,63 +65,31 @@ type requestData struct {
 }
 
 type StatusChecker interface {
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
 	Check(ctx context.Context, name string) (status bool, err error)
-	CheckMap(ctx context.Context, wg *sync.WaitGroup, m *sync.Mutex, name string, siteStatus map[string]string)
+	getHandlerFunction(websiteName string, w http.ResponseWriter)
+	checkStatus(ctx context.Context, site string)
+	checkStatusAll(ctx context.Context, siteNames []string)
+	checkStatusForOne(ctx context.Context, name string) (status bool, err error)
 }
 
-type httpChecker struct{}
-
-type websitesHandler struct {
-	ctx           context.Context
-	sitesStatus   map[string]string
-	statusChecker StatusChecker
-	m             sync.Mutex
-	wg            sync.WaitGroup
+type httpChecker struct {
+	ctx         context.Context
+	sitesStatus map[string]bool
+	m           sync.Mutex
+	wg          sync.WaitGroup
 }
 
-func (h *httpChecker) Check(ctx context.Context, name string) (status bool, err error) {
-	resp, err := http.Get(name)
-	if err != nil {
-		return false, errors.New(err.Error())
-	}
-	if resp.StatusCode == 200 {
-		return true, nil
-	}
+func (h *httpChecker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	return false, errors.New("status code doesn't match")
-}
-
-func (h *httpChecker) CheckMap(ctx context.Context, wg *sync.WaitGroup, m *sync.Mutex, name string, siteStatus map[string]string) {
-	defer wg.Done()
-	m.Lock()
-	resp, err := http.Get(name)
-
-	if err != nil {
-		siteStatus[name] = "DOWN"
-		m.Unlock()
-		return
-	}
-	if resp.StatusCode == 200 {
-		siteStatus[name] = "UP"
-		m.Unlock()
-		return
-	}
-	siteStatus[name] = "DOWN"
-	m.Unlock()
-}
-
-func (h *websitesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
 
-	// if GET method
-	if method == http.MethodGet {
+	if method == "GET" {
 
 		websiteName := r.URL.Query().Get("name")
-
-		h.handleGetRequest(websiteName, w)
+		h.getHandlerFunction(websiteName, w)
 
 	} else {
-		// if POST request
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -135,53 +103,74 @@ func (h *websitesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Found Error: "+newErr.Error(), http.StatusInternalServerError)
 		}
 
-		// constantly prints Status in terminal at an interval of 10 seconds..
 		for {
-			for _, site := range resp.Websites {
-				h.wg.Add(1)
-				go h.statusChecker.CheckMap(h.ctx, &h.wg, &h.m, site, h.sitesStatus)
-			}
-			h.wg.Wait()
+			h.checkStatusAll(h.ctx, resp.Websites) // checks status infinitely after every 10 seconds, can change time to 1 minute (specified in problm statement)
 			fmt.Println(h.sitesStatus)
-			returnHttpResponse(w, h.sitesStatus)
 			time.Sleep(time.Second * 10)
 		}
 	}
 }
 
-func (handler *websitesHandler) handleGetRequest(websiteName string, w http.ResponseWriter) {
+func (h *httpChecker) getHandlerFunction(websiteName string, w http.ResponseWriter) {
 
-	// if `name` param doesn't exists, check for all sites..
 	if len(websiteName) == 0 {
 		sitesString := []string{
 			"https://www.facebook.com",
 			"https://www.google.com",
 			"https://www.fakewebsite1.com"}
 
-		for _, site := range sitesString {
-			handler.wg.Add(1)
-			go handler.statusChecker.CheckMap(handler.ctx, &handler.wg, &handler.m, site, handler.sitesStatus)
+		h.checkStatusAll(h.ctx, sitesString)
+		response, marshalErr := json.Marshal(h.sitesStatus)
+		if marshalErr != nil {
+			http.Error(w, "Error: "+marshalErr.Error(), http.StatusInternalServerError)
+			return
 		}
-
-		handler.wg.Wait()
-		returnHttpResponse(w, handler.sitesStatus)
+		w.Write(response)
 		return
 	}
 
-	// if name param exists
-	handler.wg.Add(1)
-	go handler.statusChecker.CheckMap(handler.ctx, &handler.wg, &handler.m, websiteName, handler.sitesStatus)
-	handler.wg.Wait()
-	returnHttpResponse(w, handler.sitesStatus)
+	isUp, err := h.checkStatusForOne(h.ctx, websiteName)
+
+	if err != nil || !isUp {
+		w.Write([]byte("DOWN"))
+		return
+	}
+	w.Write([]byte("UP"))
 }
 
-func returnHttpResponse(w http.ResponseWriter, data any) {
-	response, marshalErr := json.Marshal(data)
-	if marshalErr != nil {
-		http.Error(w, "Error: "+marshalErr.Error(), http.StatusInternalServerError)
-		return
+func (h *httpChecker) checkStatus(ctx context.Context, site string) {
+	defer h.wg.Done()
+	status, err := h.checkStatusForOne(ctx, site)
+	h.m.Lock()
+	if err != nil {
+		h.sitesStatus[site] = false
 	}
-	w.Write(response)
+	if status {
+		h.sitesStatus[site] = true
+	}
+	h.m.Unlock()
+}
+
+func (h *httpChecker) checkStatusAll(ctx context.Context, siteNames []string) {
+
+	for _, site := range siteNames {
+		h.wg.Add(1)
+		go h.checkStatus(ctx, site)
+	}
+	h.wg.Wait()
+}
+
+func (h *httpChecker) checkStatusForOne(ctx context.Context, name string) (status bool, err error) {
+	resp, err := http.Get(name)
+	if err != nil {
+		return false, errors.New(err.Error())
+	}
+
+	if resp.StatusCode == 200 {
+		return true, nil
+	}
+
+	return false, errors.New("status code doesn't match")
 }
 
 func main() {
@@ -190,21 +179,18 @@ func main() {
 	ctx := context.Background()
 	var m sync.Mutex
 	var wg sync.WaitGroup
-	httpChecker := httpChecker{}
 
-	sitesStatus := make(map[string]string)
+	sitesStatus := make(map[string]bool)
 
-	ctx = context.WithValue(ctx, "SiteStatus", sitesStatus)
-	handler := websitesHandler{
+	httpObj := httpChecker{
 		ctx,
 		sitesStatus,
-		&httpChecker,
 		m,
 		wg,
 	}
 
-	mux.Handle("GET /websites", &handler)
-	mux.Handle("POST /websites", &handler)
+	mux.Handle("GET /websites", &httpObj)
+	mux.Handle("POST /websites", &httpObj)
 
 	fmt.Println("Listen to Port :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
