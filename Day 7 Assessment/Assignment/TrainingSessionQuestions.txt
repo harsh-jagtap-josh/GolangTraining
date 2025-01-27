@@ -16,7 +16,11 @@ Q1. Use cases of blank imports in golang ?
 
 
 Q2. What if repository name and module name doesn’t match, what are the consequences and why go-jwt had module name v5 and git tree was go-jwt/tree/v5
+    It is necessary that the respository name and module name are supposed to match, if they don't match it may lead to some consequences because of the path difference..
+    It may lead to issues while dependency resolution, and also leads to confusion between developers as the different path names may might be misleading.
 
+    It was specifically done for go-jwt v5 because v5 was a major version released, git tree specifies `tree` to prevent confusion while managing multiple versions of the module.
+    If someone tries to import module without the version or tree, Go may fetch the incorrect version for that module.
 
 
 Q3. Find what go.sum does and its use
