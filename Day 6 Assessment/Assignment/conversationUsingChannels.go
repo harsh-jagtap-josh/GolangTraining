@@ -16,49 +16,56 @@
 
 package main
 
+import "fmt"
+
 func handleConversation(channelAlice chan string, channelBob chan string, conversation string) string {
-
 	temp := ""
-
 	finalStr := ""
+	count := 0
 
-	for i, _ := range conversation {
+	for _, char := range conversation {
 
-		if conversation[i:i+1] == "$" {
+		if string(char) == "$" {
 
 			// received msg from Alice
 			channelAlice <- temp
 			temp = ""
+			count += 1
 
-		} else if conversation[i:i+1] == "#" {
+		} else if string(char) == "#" {
 
 			// received msg from Bob
 			channelBob <- temp
 			temp = ""
+			count += 1
 
-		} else if conversation[i:i+1] == "^" {
+		} else if string(char) == "^" {
 			break
-
 		} else {
-			temp = temp + conversation[i:i+1]
+			temp = temp + string(char)
 		}
 
+		addMsgToFinalStr(channelAlice, channelBob, &finalStr, count)
 	}
-
-	addMsgToFinalStr(channelAlice, channelBob, finalStr)
 
 	return finalStr
 
 }
 
-func addMsgToFinalStr(channelAlice, channelBob chan string, finalStr string) {
+func addMsgToFinalStr(channelAlice, channelBob chan string, finalStr *string, count int) {
 
 	select {
 	case m1 := <-channelAlice:
-		finalStr = finalStr + ", alice : " + m1 // check if Alice's channel has a message, add it to our final String
+		// check if Alice's channel has a message, add it to our final String
+
+		if count > 1 {
+			*finalStr = *finalStr + ", " // to ensure `,` doesn't appear for first message
+		}
+
+		*finalStr = *finalStr + "alice : " + m1
 
 	case m2 := <-channelBob:
-		finalStr = finalStr + ", bob: " + m2 // check if Alice's channel has a message, add it to our final String
+		*finalStr = *finalStr + ", bob: " + m2 // check if Bob's channel has a message, add it to our final String
 
 	default:
 
@@ -72,6 +79,7 @@ func main() {
 	channelAlice := make(chan string, 10)
 	channelBob := make(chan string, 10)
 
-	handleConversation(channelAlice, channelBob, conversation)
+	message := handleConversation(channelAlice, channelBob, conversation)
 
+	fmt.Println(message)
 }
