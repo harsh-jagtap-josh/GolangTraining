@@ -1,0 +1,36 @@
+Q1. Why not to use time.Sleep to wait for goroutines?
+--> we don't know how much time it's going to take, might take more time than we guessed or even less.. (race)
+--> if we have large number of routines, it's difficult to predict the time 
+--> static timing, hence totally inefficient in most cases.
+--> unnecessary/arbitrary delay 
+
+
+
+
+Q2. How golang schedular manages goroutines, which causes the sequence to be random?
+--> Go scheduler manages go routines using G-M-P which is GoRoutine-Machine-Processor model. This model basically helps Go to distribute the routines to multiple machines (or OS threads), which basically run on processors. 
+--> The scheduler may stop and resume various goroutines at random point of time. Here processor that are idle can start running go routines that are ready to start, so its not necessary that it will pick a task that is next in the queue, it will take any task randomly that is ready to run. And, this is basically the part that helps Go achieve concurrency.
+--> Hence, the running of tasks or routines parallely on multiple threads, leads to a random order of finish of routine, leading to a random output while running multiple routines at the same time. 
+--> This helps us in achieving concurrency, and results in random order of execution.
+
+
+Q3. Buffered channel of capacity 1 is used to make sure only 1 go routine can access the critical section at a time. Write a code to justify this statement
+--> In the file Day 6 Training/Practice/bufferCapacity.go
+
+
+Assignment:
+
+Q1. Find use cases for buffered and unbuffered channels?
+--> Buffered channels in Golang are used to communicate concurrently executing functions by sending and receiving information from a certain element type for a given capacity.
+--> Unbuffered Channel in Golang is used without any capacity or 0 capacity and communication succeeds only when both a sender and receiver are ready.
+
+	- What should be used  depends on the requirement of the program or application, 
+		if we want or know how many goroutines we need to launch prior then we should go with the buffered channel,
+		as it helps us to limit the capacity and limit the amount of work.
+	- Unbuffered channels perform kind of better because the send and receive processes are coordinated and when we don't know how many goroutines we need to launch.
+	- Also, An unbuffered channel makes sure that communication between two goroutines occurs at the same time because there is no buffer. A buffered channel provides no such assurance.
+
+
+
+Q2. Understand and prepare a document on how Go schedular manages goroutines
+--> Same as question 2 above ^
