@@ -8,8 +8,10 @@ Q1. Why not to use time.Sleep to wait for goroutines?
 
 
 Q2. How golang schedular manages goroutines, which causes the sequence to be random?
-
-
+--> Go scheduler manages go routines using G-M-P which is GoRoutine-Machine-Processor model. This model basically helps Go to distribute the routines to multiple machines (or OS threads), which basically run on processors. 
+--> The scheduler may stop and resume various goroutines at random point of time. Here processor that are idle can start running go routines that are ready to start, so its not necessary that it will pick a task that is next in the queue, it will take any task randomly that is ready to run. And, this is basically the part that helps Go achieve concurrency.
+--> Hence, the running of tasks or routines parallely on multiple threads, leads to a random order of finish of routine, leading to a random output while running multiple routines at the same time. 
+--> This helps us in achieving concurrency, and results in random order of execution.
 
 
 Q3. Buffered channel of capacity 1 is used to make sure only 1 go routine can access the critical section at a time. Write a code to justify this statement
